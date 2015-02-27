@@ -2,6 +2,7 @@
 
 using namespace std;
 
+#include <map>
 #include <iostream>
 #include <stdio.h>
 #include <unistd.h>
@@ -9,18 +10,35 @@ using namespace std;
 #include <string>
 #include "lzw.h"
 
-extern int code;
-extern int max_len;
+int code = 0;
+int max_len = 0;
+
+void init(map<string, int> &m) {
+    string temp = "";
+    for(unsigned char i = 0; i <= 254; i++) {
+        temp += i;
+        m[temp] = code++;
+        temp.clear();
+    }
+    temp += (unsigned char) 255;
+    m[temp] = code++;
+}
+
+int search(map<string, int> &m, string w) {
+    if(m.find(w) != m.end()) {
+        return m[w];
+    }
+    return -1;
+}
 
 bool compress(int in, int out) {
 
-    /*Creating the rbtree */
-    rbtree *rb =  new rbtree();
-    init(rb);
+    /*Creating STL-Map */
+    map<string, int> m;
+    init(m);
 
     /*w is the longest prefix */
-    string w = ""; 
-    w.reserve(4 * BLOCK);
+    string w = "";
 
     /*Getting file-size */
     float sum, filesize = 0, progress = 0;
@@ -29,7 +47,6 @@ bool compress(int in, int out) {
 
     char rbuffer[BLOCK + 1];
     int wbuffer[BLOCK + 1];
-    int out_code;
     int len = read(in, rbuffer, BLOCK);
     int i = 1, j = 0, k = 0;
 
@@ -38,33 +55,29 @@ bool compress(int in, int out) {
     printf("%.2f%% completed.\r", progress * 100.0);
 
     w += rbuffer[j++];
-//    w += '\0';
-    wbuffer[k] = out_code = search(rb, w);
+    wbuffer[k] = search(m, w);
 
     while(len != 0) {
         for(j; j < len; j++) {
-            int curr_code = search(rb, w + rbuffer[j]);
+            int curr_code = search(m, w + rbuffer[j]);
             if(curr_code != -1) {
-                wbuffer[k] = out_code = curr_code;
+                wbuffer[k] = curr_code;
                 w += rbuffer[j];
-//                w += '\0';
                 i++;
                 if(i > max_len) {
                     max_len = i;
                 }
             } else {
                 k++;
-                //write(out, &out_code, sizeof(int));
                 if(k == BLOCK) {
                     write(out, wbuffer, k * sizeof(int));
                     k = 0;
                 }
-                insert(rb, w + rbuffer[j], code++);
+                m[w + rbuffer[j]] = code++;
                 i = 1;
-                w = "";
+                w.clear();
                 w += rbuffer[j];
-//                w += '\0';
-                wbuffer[k] = out_code = search(rb, w);
+                wbuffer[k] = search(m, w);
             }
         }
         len = read(in, rbuffer, BLOCK);
@@ -74,8 +87,6 @@ bool compress(int in, int out) {
         printf("%.2f%% completed.\r", progress * 100.0);
     }
     write(out, wbuffer, (k + 1) * sizeof(int));
-    free(rb->root);
-    delete rb;
     printf("\n");
 
     return true;

@@ -5,7 +5,7 @@ applications that use hashmaps.
 The project contains one core file named lzw.cpp
 
 lzw.cpp implements the Lempel-Ziv-Welch compression algorithm using stl-map which are by default Red-Black Trees. It uses hashmaps
-to create its dictionary. It has two functons compress and decompress which are self explanatory.
+to create its dictionary. It has two functions compress and decompress which are self explanatory.
 
 main.cpp is the starting point of the application
 

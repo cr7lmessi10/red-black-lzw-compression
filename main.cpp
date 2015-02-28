@@ -13,6 +13,8 @@ using namespace std;
 extern int code;
 extern int max_len;
 
+void stats(int, int);
+
 int main(int argc, char *argv[]) {
 
     int opt = 0, ufilesize, cfilesize;
@@ -31,8 +33,7 @@ int main(int argc, char *argv[]) {
                         return 0;
                     }
                     char name[128];
-                    strcpy(name, strtok(argv[2], "."));
-                    strcat(name, ".lzw");
+                    strcpy(name, strcat(argv[2], (char *) ".lzw"));
                     int out = open(name, O_WRONLY | O_CREAT);
                     if(out == -1) {
                         perror("File could not be created");
@@ -43,6 +44,7 @@ int main(int argc, char *argv[]) {
                     cfilesize = lseek(out, 0, SEEK_END);
                     close(in);
                     close(out);
+                    stats(ufilesize, cfilesize);
                    }
                     break;
         case 'd' : {
@@ -56,8 +58,9 @@ int main(int argc, char *argv[]) {
                         return 0;
                     }
                     char name[128];
-                    strcpy(name, strtok(argv[2], "."));
-                    //strcat(name, ".lzw");
+                    strcpy(name, strtok(argv[2], (char *) "."));
+                    strcat(name, ".");
+                    strcat(name, strtok(NULL, (char *) "."));
                     int out = open(name, O_WRONLY | O_CREAT);
                     if(out == -1) {
                         perror("File could not be created");
@@ -71,6 +74,11 @@ int main(int argc, char *argv[]) {
                    return 0;
                   }
     }
+    return 0;
+}
+
+void stats(int ufilesize, int cfilesize) {
+
     printf("Debug stats:\n");
     printf("Codes created - %d\n", code);
     printf("Max code length - %d\n", max_len);
@@ -80,5 +88,4 @@ int main(int argc, char *argv[]) {
     char *color = cfilesize > ufilesize ? (char *)"\x1B[31m" : (char *)"\x1B[32m";
     printf("Space savings - %s%.2lf%%\e[0m\n", color, fabs(((float) (ufilesize - cfilesize) / (float) ufilesize) * 100));
 
-    return 0;
 }

@@ -93,5 +93,12 @@ bool compress(int in, int out) {
 }
 
 bool decompress(int in, int out) {
+    
+    /*Creating STL-Map */
+    map<string, int> m;
+    init(m);
+
+    int rbuffer[BLOCK + 1];
+    char wbuffer[BLOCK + 1];
 
 }

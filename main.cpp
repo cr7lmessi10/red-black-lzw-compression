@@ -67,6 +67,8 @@ int main(int argc, char *argv[]) {
                         return 0;
                     }
                     decompress(in, out);
+                    close(in);
+                    close(out);
                    }
                     break;
         default:  {

@@ -24,6 +24,17 @@ void init(map<string, int> &m) {
     m[temp] = code++;
 }
 
+void init(map<int, string> &m) {
+    string temp = "";
+    for(unsigned char i = 0; i <= 254; i++) {
+        temp += i;
+        m[code++] = temp;
+        temp.clear();
+    }
+    temp += (unsigned char) 255;
+    m[code++] = temp;
+}
+
 int search(map<string, int> &m, string w) {
     if(m.find(w) != m.end()) {
         return m[w];
@@ -95,10 +106,27 @@ bool compress(int in, int out) {
 bool decompress(int in, int out) {
     
     /*Creating STL-Map */
-    map<string, int> m;
+    map<int, string> m;
     init(m);
 
-    int rbuffer[BLOCK + 1];
-    char wbuffer[BLOCK + 1];
+    int curr, next;
+    int i = 0, len = 0;
+    len = read(in, &curr, sizeof(int));
+    len = read(in, &next, sizeof(int));
 
+    while(len != 0) {  
+            if(next >= code) {
+                write(out, &m[curr][0u], m[curr].length());
+                m[code++] = m[curr] + m[curr][0];
+                cout << "came here" << endl;
+            } else {
+                write(out, &m[curr][0u], m[curr].length());
+                m[code++] = m[curr] + m[next][0];
+            }
+            curr = next;
+            len = read(in, &next, sizeof(int));
+    }
+    write(out, &m[curr][0u], m[curr].length());
+
+    return true;
 }

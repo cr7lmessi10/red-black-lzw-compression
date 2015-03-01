@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
                     }
                     char name[128];
                     strcpy(name, strcat(argv[2], (char *) ".lzw"));
-                    int out = open(name, O_WRONLY | O_CREAT);
+                    int out = open(name, O_WRONLY | O_CREAT, 0666);
                     if(out == -1) {
                         perror("File could not be created");
                         return 0;
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
                     strcpy(name, strtok(argv[2], (char *) "."));
                     strcat(name, ".");
                     strcat(name, strtok(NULL, (char *) "."));
-                    int out = open(name, O_WRONLY | O_CREAT);
+                    int out = open(name, O_WRONLY | O_CREAT, 0666);
                     if(out == -1) {
                         perror("File could not be created");
                         return 0;

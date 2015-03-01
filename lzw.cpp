@@ -114,31 +114,37 @@ bool decompress(int in, int out) {
     filesize = (float) lseek(in, 0, SEEK_END);
     lseek(in, 0, SEEK_SET);
 
-    int curr, next;
-    int i = 0, len = 0;
-    len = read(in, &curr, sizeof(int));
-    len = read(in, &next, sizeof(int));
+    int rbuffer[BLOCK + 1];
+    string wbuffer = "";
+    int curr = 0, next = 0, len = 0;
+    len = read(in, rbuffer, BLOCK * sizeof(int)) / sizeof(int);
 
-    sum = len;
+    sum = len * sizeof(int);
     progress = sum / filesize;
     printf("%.2f%% completed.\r", progress * 100.0);
 
-    while(len != 0) {  
-            if(next >= code) {
-                write(out, &m[curr][0u], m[curr].length());
-                m[code++] = m[curr] + m[curr][0];
+    while(len != 0) {
+        for(curr = 0, next = 1; curr < len - 1; curr++, next = curr + 1) {
+            if(rbuffer[next] >= code) {
+                wbuffer += m[rbuffer[curr]];
+                write(out, &wbuffer[0u], wbuffer.length());
+                wbuffer.clear();
+                m[code++] = m[rbuffer[curr]] + m[rbuffer[curr]][0u];
             } else {
-                write(out, &m[curr][0u], m[curr].length());
-                m[code++] = m[curr] + m[next][0];
+                wbuffer += m[rbuffer[curr]];
+                write(out, &wbuffer[0u], wbuffer.length());
+                wbuffer.clear();
+                m[code++] = m[rbuffer[curr]] + m[rbuffer[next]][0u];
             }
-            curr = next;
-            len = read(in, &next, sizeof(int));
-        
-            sum += len;
-            progress = sum / filesize;
-            printf("%.2f%% completed.\r", progress * 100.0);
+        }
+        rbuffer[0] = rbuffer[curr];
+        len = read(in, rbuffer + 1, BLOCK * sizeof(int)) / sizeof(int);
+
+        sum += (len * sizeof(int));
+        progress = sum / filesize;
+        printf("%.2f%% completed.\r", progress * 100.0);
     }
-    write(out, &m[curr][0u], m[curr].length());
+    write(out, &m[rbuffer[0]][0u], m[rbuffer[0]].length());
     printf("\n");
 
     return true;

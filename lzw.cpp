@@ -109,24 +109,37 @@ bool decompress(int in, int out) {
     map<int, string> m;
     init(m);
 
+    /*Getting file-size */
+    float sum, filesize = 0, progress = 0;
+    filesize = (float) lseek(in, 0, SEEK_END);
+    lseek(in, 0, SEEK_SET);
+
     int curr, next;
     int i = 0, len = 0;
     len = read(in, &curr, sizeof(int));
     len = read(in, &next, sizeof(int));
 
+    sum = len;
+    progress = sum / filesize;
+    printf("%.2f%% completed.\r", progress * 100.0);
+
     while(len != 0) {  
             if(next >= code) {
                 write(out, &m[curr][0u], m[curr].length());
                 m[code++] = m[curr] + m[curr][0];
-                cout << "came here" << endl;
             } else {
                 write(out, &m[curr][0u], m[curr].length());
                 m[code++] = m[curr] + m[next][0];
             }
             curr = next;
             len = read(in, &next, sizeof(int));
+        
+            sum += len;
+            progress = sum / filesize;
+            printf("%.2f%% completed.\r", progress * 100.0);
     }
     write(out, &m[curr][0u], m[curr].length());
+    printf("\n");
 
     return true;
 }

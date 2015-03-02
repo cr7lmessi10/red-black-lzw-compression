@@ -2,7 +2,7 @@ lzw: main.o lzw.o
 	g++ main.o lzw.o -lm -o lzw
 main.o: main.cpp
 	g++ -c main.cpp
-lzw.o: lzw.cpp
+lzw.o: lzw.cpp lzw.h
 	g++ -c lzw.cpp
 clean:
 	rm *.o *.lzw lzw
